@@ -6,6 +6,7 @@
   pkg-config,
   wrapQtAppsHook,
   hyprland-protocols,
+  hyprland,
   hyprlang,
   hyprutils,
   hyprwayland-scanner,
