@@ -5,7 +5,6 @@
   makeWrapper,
   pkg-config,
   wrapQtAppsHook,
-  hyprland,
   hyprland-protocols,
   hyprlang,
   hyprutils,
@@ -77,7 +76,7 @@ stdenv.mkDerivation {
   postInstall = ''
     wrapProgramShell $out/bin/hyprland-share-picker \
       "''${qtWrapperArgs[@]}" \
-      --prefix PATH ":" ${lib.makeBinPath [slurp hyprland]}
+      --prefix PATH ":" ${lib.makeBinPath [slurp]}
 
     wrapProgramShell $out/libexec/xdg-desktop-portal-hyprland \
       --prefix PATH ":" ${lib.makeBinPath [(placeholder "out")]}
