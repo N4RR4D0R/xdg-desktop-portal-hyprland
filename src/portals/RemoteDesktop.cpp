@@ -105,7 +105,11 @@ dbUasv CRemoteDesktopPortal::onCreateSession(sdbus::ObjectPath requestHandle, sd
     PSESSION->keyboard           = makeShared<CCZwpVirtualKeyboardV1>(m_sState.keyboardMgr->sendCreateVirtualKeyboard(g_pPortalManager->m_sWaylandConnection.seat->resource()));
 
     const auto& keymap = g_pPortalManager->m_sKeymap;
-    PSESSION->keyboard->sendKeymap(keymap.format, keymap.fd, keymap.size);
+    // Only upload a real keymap. Sending the zero-initialised default (fd 0,
+    // size 0) makes the compositor's mmap fail with a fatal "no memory" protocol
+    // error that kills the portal's Wayland connection and all injection.
+    if (keymap.fd > 0 && keymap.size > 0)
+        PSESSION->keyboard->sendKeymap(keymap.format, keymap.fd, keymap.size);
 
     PSESSION->eis                = std::make_unique<EmulatedInputServer>("eisr-" + std::to_string(m_uSessionCounter++));
     PSESSION->eis->setVirtualPointer(PSESSION->pointer);

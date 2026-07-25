@@ -180,8 +180,23 @@ int EmulatedInputServer::onEvent(eis_event* e) {
                 int x = eis_event_pointer_get_absolute_x(e);
                 int y = eis_event_pointer_get_absolute_y(e);
                 device = eis_event_get_device(e);
-                eis_region* region = eis_device_get_region_at(device, x, y);
-                virtualPointer->sendMotionAbsolute(0, x, y, eis_region_get_width(region), eis_region_get_height(region));
+                // zwlr_virtual_pointer.motion_absolute maps x/x_extent, y/y_extent
+                // onto the whole output layout, so the extent must be the full
+                // desktop bounding box. Using the single region's size collapsed
+                // stacked/side-by-side monitors onto the first output.
+                int w = 0, h = 0;
+                for (auto& o : g_pPortalManager->getAllOutputs()) {
+                    if (o->x + (int)o->width > w)
+                        w = o->x + (int)o->width;
+                    if (o->y + (int)o->height > h)
+                        h = o->y + (int)o->height;
+                }
+                if (w > 0 && h > 0)
+                    virtualPointer->sendMotionAbsolute(0, x, y, w, h);
+                else {
+                    eis_region* region = eis_device_get_region_at(device, x, y);
+                    virtualPointer->sendMotionAbsolute(0, x, y, eis_region_get_width(region), eis_region_get_height(region));
+                }
             }
             break;
         case EIS_EVENT_BUTTON_BUTTON:

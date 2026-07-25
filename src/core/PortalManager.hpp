@@ -90,6 +90,7 @@ class CPortalManager {
     struct {
         wl_display*                           display = nullptr;
         SP<CCWlSeat>                          seat;
+        SP<CCWlKeyboard>                      keyboard;
         SP<CCWlRegistry>                      registry;
         SP<CCHyprlandToplevelExportManagerV1> hyprlandToplevelMgr;
         SP<CCZwpLinuxDmabufV1>                linuxDmabuf;

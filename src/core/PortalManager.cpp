@@ -103,6 +103,21 @@ void CPortalManager::onGlobal(uint32_t name, const char* interface, uint32_t ver
 
     else if (INTERFACE == wl_seat_interface.name) {
         m_sWaylandConnection.seat = makeShared<CCWlSeat>((wl_proxy*)wl_registry_bind((wl_registry*)m_sWaylandConnection.registry->resource(), name, &wl_seat_interface, version));
+        // Capture the compositor's keymap so the RemoteDesktop virtual keyboard can
+        // be given a valid one. get_keyboard is only legal once the seat announces
+        // the keyboard capability, so gate on the capabilities event.
+        m_sWaylandConnection.seat->setCapabilities([this](CCWlSeat*, uint32_t caps) {
+            if (!(caps & WL_SEAT_CAPABILITY_KEYBOARD) || m_sWaylandConnection.keyboard)
+                return;
+            m_sWaylandConnection.keyboard = makeShared<CCWlKeyboard>(m_sWaylandConnection.seat->sendGetKeyboard());
+            m_sWaylandConnection.keyboard->setKeymap([this](CCWlKeyboard*, uint32_t format, int32_t fd, uint32_t size) {
+                if (m_sKeymap.fd > 0)
+                    close(m_sKeymap.fd);
+                m_sKeymap.format = (wl_keyboard_keymap_format)format;
+                m_sKeymap.fd     = fcntl(fd, F_DUPFD_CLOEXEC, 0);
+                m_sKeymap.size   = size;
+            });
+        });
     }
 
     else if (INTERFACE == zwp_linux_dmabuf_v1_interface.name) {
