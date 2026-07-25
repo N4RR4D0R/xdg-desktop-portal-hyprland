@@ -60,6 +60,7 @@ stdenv.mkDerivation {
     wayland
     wayland-protocols
     wayland-scanner
+    libei
   ];
 
   cmakeBuildType =
