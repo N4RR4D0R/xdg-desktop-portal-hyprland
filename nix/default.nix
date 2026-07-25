@@ -63,6 +63,8 @@ stdenv.mkDerivation {
     libei
   ];
 
+  enableParallelBuilding = false;
+
   cmakeBuildType =
     if debug
     then "Debug"
