@@ -18,6 +18,7 @@
   qtwayland,
   sdbus-cpp_2,
   slurp,
+  libei,
   systemd,
   wayland,
   wayland-protocols,
